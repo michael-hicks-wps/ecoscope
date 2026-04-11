@@ -1,0 +1,21 @@
+[project]
+name = "ccfn-tasks"
+version = "0.1.0"
+requires-python = ">=3.10"
+dependencies = [
+    "wt-registry",
+    "geopandas",
+    "pandas",
+    "requests",
+    "urllib3",
+    "pydantic-settings",
+    "folium",
+    "plotly",
+]
+
+[project.entry-points."wt_registry"]
+ccfn_tasks = "ccfn_tasks"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"

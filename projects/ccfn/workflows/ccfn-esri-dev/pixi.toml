@@ -1,0 +1,16 @@
+[project]
+name = "ccfn-smart-download-esri"
+channels = [
+    "https://repo.prefix.dev/ecoscope-workflows/",
+    "conda-forge",
+]
+platforms = ["win-64", "linux-64", "osx-arm64"]
+
+[dependencies]
+hatch = "*"
+
+[feature.compile.dependencies]
+ecoscope-platform = ">=2.11.3,<3"
+
+[environments]
+compile = { features = ["compile"], solve-group = "compile", no-default-feature = true }

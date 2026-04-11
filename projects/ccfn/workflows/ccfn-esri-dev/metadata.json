@@ -1,0 +1,19 @@
+{
+  "id": "ccfn-smart-download-esri",
+  "name": "CCFN SMART Download (Esri LULC)",
+  "category": "uncategorized",
+  "description": "Download animal observation and patrol effort data from the CCFN SMART Connect server and visualise by conservancy and month. Land cover change detection uses the Esri 10m Annual LULC dataset via Microsoft Planetary Computer (no Google Earth Engine account required).",
+  "image_url": null,
+  "created_at": "2026-04-10T00:00:00.000Z",
+  "updated_at": "2026-04-10T00:00:00.000Z",
+  "created_by": null,
+  "updated_by": null,
+  "is_active": true,
+  "latest_version": {
+    "version": "0.1.0"
+  },
+  "pixi_install_status": {
+    "status": "initialization_succeeded"
+  },
+  "version_file_relative_path": "ecoscope-workflows-ccfn-smart-download-esri-workflow\\VERSION.yaml"
+}
