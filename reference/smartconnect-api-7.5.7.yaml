@@ -1,0 +1,3866 @@
+openapi: 3.0.1
+info:
+  title: SMART Connect API
+  description: SMART Connect API
+  version: "7.0"
+servers:
+- url: https://<connectserver>/connect/api/
+  variables: {}
+paths:
+  /api/basemap:
+    get:
+      description: Lists all SMART desktop basemap layers for Conservation Areas the
+        current user can access.
+      operationId: getLayers
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AlertType'
+    put:
+      description: Updates the set of basemaps to be visible by default for the current
+        user
+      operationId: updateLayerSet
+      requestBody:
+        content:
+          '*/*':
+            schema:
+              type: array
+              items:
+                type: string
+      responses:
+        "200":
+          description: OK
+  /api/basemap/{tileset}/{z}/{x}/{y}:
+    get:
+      operationId: getTile
+      parameters:
+      - name: tileset
+        in: path
+        description: The tileset
+        required: true
+        schema:
+          type: string
+      - name: z
+        in: path
+        description: z
+        required: true
+        schema:
+          type: string
+      - name: x
+        in: path
+        description: x
+        required: true
+        schema:
+          type: string
+      - name: "y"
+        in: path
+        description: "y"
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+  /api/ca/datamodel:
+    post:
+      operationId: updateFilePost
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/MultipartFormDataInput'
+      responses:
+        default:
+          description: default response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+  /api/connectalert:
+    get:
+      description: Get a filtered Alert List as GeoJSON
+      operationId: getAllAlerts
+      parameters:
+      - name: levelFilter
+        in: query
+        schema:
+          type: string
+      - name: typeUuidFilter
+        in: query
+        schema:
+          type: string
+      - name: statusFilter
+        in: query
+        schema:
+          type: string
+      - name: caUuidFilter
+        in: query
+        schema:
+          type: string
+      - name: startDateFilter
+        in: query
+        schema:
+          type: string
+      - name: endDateFilter
+        in: query
+        schema:
+          type: string
+      - name: textSearchFilter
+        in: query
+        schema:
+          type: string
+      - name: sortBy
+        in: query
+        schema:
+          type: string
+      - name: sortAscending
+        in: query
+        schema:
+          type: boolean
+      - name: maxAlertOverride
+        in: query
+        schema:
+          type: string
+      responses:
+        default:
+          description: default response
+          content:
+            application/json:
+              schema:
+                type: string
+  /api/connectalert/alertTypes:
+    get:
+      description: Lists all alert types configured in SMART Connect
+      operationId: getAlertTypes
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AlertType'
+  /api/connectalert/alertTypes/{label}:
+    post:
+      description: Creates a new alert type
+      operationId: addAlertType
+      parameters:
+      - name: label
+        in: path
+        description: The name for the new alert type
+        required: true
+        schema:
+          type: string
+      requestBody:
+        description: Details of the new alert type. Uuid field is ignored
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AlertType'
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AlertType'
+  /api/connectalert/alertTypes/{uuid}:
+    get:
+      description: Gets details for the given alert type
+      operationId: getAlertType
+      parameters:
+      - name: uuid
+        in: path
+        description: unique identifier for alert type
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AlertType'
+    put:
+      description: Updates an alert type.
+      operationId: updateAlertType
+      parameters:
+      - name: uuid
+        in: path
+        description: unique system identifier for the alert type to update
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        description: New details for the alert type.  Only populate attributes to
+          be updated. Attributes not provided will not be updated.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AlertType'
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AlertType'
+    delete:
+      description: Deletes the provided alert type
+      operationId: removeAlertType
+      parameters:
+      - name: uuid
+        in: path
+        description: unique system identifier of alert type to delete
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AlertType'
+  /api/connectalert/ca/{caUuid}:
+    get:
+      description: Get all alert for a given Conservation Area.
+      operationId: getAlertsByCa
+      parameters:
+      - name: caUuid
+        in: path
+        description: unique system identifier of the Conservation Area
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Alert'
+  /api/connectalert/{alertUuid}:
+    get:
+      description: Get a specific alert
+      operationId: getAlert
+      parameters:
+      - name: alertUuid
+        in: path
+        description: the unique system identifier of the alert to return
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Alert'
+    delete:
+      description: Deletes an alert
+      operationId: removeAlert
+      parameters:
+      - name: alertUuid
+        in: path
+        description: system generated unique identifer of the alert to delete
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Alert'
+  /api/connectalert/{usergenid}:
+    put:
+      description: Updates a given alert
+      operationId: editAlert
+      parameters:
+      - name: usergenid
+        in: path
+        description: User generated unique identifier of the alert to update.
+        required: true
+        schema:
+          type: string
+      requestBody:
+        description: New values for alert.  Attributes that are not going to be updated
+          can be left out.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Alert'
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Alert'
+    post:
+      description: "Create a new Alert.  Note on Tracks / Updates: If you call this\
+        \ API with the same usergenid more than once, the systems adds the past x,y\
+        \ coordinates \r\n to a historical \"track\" of sorts and overwrites the other\
+        \ attributes with the latest data. This is the way users can send a repetitive\r\
+        \n \"ping\" to keep a last-known location and past track of devices without\
+        \ creating a new alert everytime the location is updated. "
+      operationId: addAlert
+      parameters:
+      - name: usergenid
+        in: path
+        description: user generated identifier for alert
+        required: true
+        schema:
+          type: string
+      requestBody:
+        description: Details of the alert. "Date" is option and if left blank will
+          be populated by the server.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GeoJsonAlert'
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Alert'
+  /api/connectalertfilterdefault:
+    get:
+      operationId: getAlertFilterDefaults
+      responses:
+        default:
+          description: default response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AlertFilterDefault'
+    put:
+      operationId: updateAlertFilterDefault
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AlertFilterDefault'
+      responses:
+        default:
+          description: default response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AlertFilterDefault'
+  /api/connectalertfilterdefault/{uuid}:
+    put:
+      operationId: updateAlertFilterDefault_1
+      parameters:
+      - name: uuid
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AlertFilterDefault'
+      responses:
+        default:
+          description: default response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AlertFilterDefault'
+  /api/connectstyle:
+    get:
+      operationId: getStyleConfiguration
+      responses:
+        default:
+          description: default response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StyleConfiguration'
+    put:
+      operationId: editStyleConfiguration
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/MultipartFormDataInput'
+      responses:
+        default:
+          description: default response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StyleConfiguration'
+    post:
+      operationId: addStyleConfiguration
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/MultipartFormDataInput'
+      responses:
+        default:
+          description: default response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StyleConfiguration'
+    delete:
+      operationId: removeStyleConfiguration
+      responses:
+        default:
+          description: default response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StyleConfiguration'
+  /api/connectuser:
+    get:
+      description: Get all active Connect users.
+      operationId: getActiveUsers
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SmartUser'
+  /api/connectuser/activate/{username}:
+    put:
+      description: Activate an inactive user.
+      operationId: activateUser
+      parameters:
+      - name: username
+        in: path
+        description: the username to activate
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SmartUser'
+    delete:
+      description: Deactivate a user.
+      operationId: deactivateUser
+      parameters:
+      - name: username
+        in: path
+        description: the username to deactivate
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SmartUser'
+  /api/connectuser/getCurrent:
+    get:
+      description: Get the detailed information about the current user.
+      operationId: getCurrentUser
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SmartUser'
+  /api/connectuser/getinactive:
+    get:
+      description: Gets all inactive users.
+      operationId: getInactiveUsers
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SmartUser'
+  /api/connectuser/iscurrentuseradmin:
+    get:
+      description: Returns whether the current user is an admin user or not.
+      operationId: isCurrentUserAnAdmin
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: boolean
+  /api/connectuser/{username}:
+    get:
+      description: Get a users details.
+      operationId: getUser
+      parameters:
+      - name: username
+        in: path
+        description: the username of the requested user
+        required: true
+        schema:
+          type: string
+      - name: validate
+        in: query
+        description: "optional, set to true if you only want to validate this user\
+          \ and not get their full details back"
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SmartUser'
+    put:
+      description: Update a user's details
+      operationId: updateUser
+      parameters:
+      - name: username
+        in: path
+        description: the username of the requested user
+        required: true
+        schema:
+          type: string
+      requestBody:
+        description: The new values for the user details.  Only non-null attributes
+          are updated.  Use a value of 99999999-9999-9999-9999-999999999999 to update
+          the home Conservation Area to null.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SmartUser'
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SmartUser'
+    post:
+      description: Create a new user.
+      operationId: addUser
+      parameters:
+      - name: username
+        in: path
+        description: the username of the user
+        required: true
+        schema:
+          type: string
+      requestBody:
+        description: other details about the user
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SmartUser'
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SmartUser'
+    delete:
+      description: Deletes a user.
+      operationId: removeUser_1
+      parameters:
+      - name: username
+        in: path
+        description: the username to delete
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SmartUser'
+  /api/conservationarea:
+    get:
+      description: Lists all Conservation Areas
+      operationId: getConservationAreas
+      parameters:
+      - name: organizationFilter
+        in: query
+        description: optional - only return CAs that have the provided text in the
+          organization field
+        schema:
+          type: string
+      - name: caJsonFilter
+        in: query
+        description: "optional - must be valid GeoJson polygon - only return CAs that\
+          \ are completely contained within this GeoJSON Polygon. ie. if a single\
+          \ point of the CA Boundary is outside of it, the ca will not be returned.\
+          \ be sure to encode the geojson, leave no spaces etc. An example of a simple\
+          \ polygon of the world:  caJsonFilter=%7B%22type%22%3A%22Polygon%22%2C%22coordinates%22%3A%5B%5B%5B-180%2C90%5D%2C%5B180%2C90%5D%2C%5B180%2C-90%5D%2C%5B-180%2C-90%5D%2C%5B-180%2C90%5D%5D%5D%7D\
+          \   originally it is caJsonFilter={'type':'Polygon','coordinates':[[[-180,90],[180,90],[180,-90],[-180,-90],[-180,90]]]}\
+          \  use you local programming language urlencoder, or an online tool like\
+          \ this to do it out manually: http://meyerweb.com/eric/tools/dencoder/"
+        schema:
+          type: string
+      - name: includeSpatialBoundaries
+        in: query
+        description: "Boolean - true to get GeoJson data on CA boundaries, false to\
+          \ skip it as this can take a long time for lots of CAs and lots of boundaries."
+        schema:
+          type: boolean
+      responses:
+        default:
+          description: default response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ConservationAreaProxy'
+    post:
+      description: Creates a new conservation area with no data.  Both parameters
+        are optional and generated by the system if not provided.
+      operationId: createConservationArea
+      parameters:
+      - name: cauuid
+        in: query
+        description: "The CA UUID you wish to create, leave it blank if you want the\
+          \ system to create one for you."
+        schema:
+          type: string
+      - name: name
+        in: query
+        description: The CA Name
+        schema:
+          type: string
+      responses:
+        default:
+          description: default response
+          content:
+            application/json: {}
+  /api/conservationarea/withdataonly:
+    get:
+      description: List all Conservation Areas that have SMART data
+      operationId: getConservationAreasWithData
+      parameters:
+      - name: permission
+        in: query
+        description: Optional. If provided it should be a comma delimited list of
+          action strings that are applicable for the Conservation Area. Only Conservation
+          Areas that the user has the specific action permission for will be returned.
+          For example permission=updateca will only return ca's that the user has
+          permission to update. If not provided only ca's the user has permission
+          to read from are returned.
+        schema:
+          type: string
+      responses:
+        default:
+          description: default response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ConservationAreaProxy'
+  /api/conservationarea/{cauuid}:
+    get:
+      description: "This function returns different information depending on parameters\r\
+        \n\t * provided:\r\n\t *  <ul><li>If no parameters are provided it returns\
+        \ a JSON object\r\n\t * with information about the conservation area.</li>\
+        \  \r\n\t * <li>If data, version, and revision\r\n\t * are provided with a\
+        \ value of \"changelog\" for data then a zip file is\r\n\t * returned containing\
+        \ the change log.  In data is provided with a value of \r\n\t * \"all\" then\
+        \ a url is returned that represents the status of the ca download\r\n\t *\
+        \ package process.</li>\r\n\t * </ul>\r\n\t * </p>"
+      operationId: getConservationArea
+      parameters:
+      - name: cauuid
+        in: path
+        description: the CA UUID
+        required: true
+        schema:
+          type: string
+      - name: data
+        in: query
+        description: the data
+        schema:
+          type: string
+      - name: version
+        in: query
+        description: version number
+        schema:
+          type: string
+      - name: revision
+        in: query
+        description: revision number
+        schema:
+          type: string
+      responses:
+        default:
+          description: default response
+          content:
+            application/json: {}
+    put:
+      description: Initiates an upload CA session
+      operationId: updateConservationArea
+      parameters:
+      - name: cauuid
+        in: path
+        description: the Conservation Area UUID as a string
+        required: true
+        schema:
+          type: string
+      responses:
+        default:
+          description: default response
+          content:
+            application/json:
+              schema:
+                type: string
+    post:
+      description: Initiates an upload CA session. Used when uploading a full CA from
+        SMART Desktop
+      operationId: createAndUploadConservationArea
+      parameters:
+      - name: cauuid
+        in: path
+        description: The Conservation Area uuid
+        required: true
+        schema:
+          type: string
+      - name: version
+        in: query
+        description: the Conservation Area uuid version number as a string
+        schema:
+          type: string
+      responses:
+        default:
+          description: default response
+          content:
+            application/json:
+              schema:
+                type: string
+    delete:
+      description: Deletes a given Conservation Area.
+      operationId: deleteConservationArea
+      parameters:
+      - name: cauuid
+        in: path
+        description: the UUID of the CA you wish to delete
+        required: true
+        schema:
+          type: string
+      - name: dataonly
+        in: query
+        description: "Strings 'true' or 'false' indicate if you want to delete the\
+          \ desktop data only, not the alerts and other Connect-based data"
+        schema:
+          type: string
+      - name: username
+        in: query
+        description: must be a valid admin username
+        schema:
+          type: string
+      - name: password
+        in: query
+        description: the admin password
+        schema:
+          type: string
+      - name: version
+        in: query
+        description: "a valid UUID formatted string, this can be retrieved from the\
+          \ getCAs call, you get something like: version=008ffc5a-7228-4d9c-a342-5dbf1fbec21e"
+        schema:
+          type: string
+      responses:
+        default:
+          description: default response
+          content:
+            application/json: {}
+  /api/cybertracker/apikey:
+    get:
+      operationId: getApiKeys
+      responses:
+        default:
+          description: default response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ConservationAreaInfo'
+  /api/cybertracker/apikey/{uuid}:
+    get:
+      operationId: getApiKey
+      parameters:
+      - name: uuid
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: type
+        in: query
+        schema:
+          type: string
+      responses:
+        default:
+          description: default response
+          content:
+            '*/*':
+              schema:
+                type: string
+    delete:
+      operationId: deleteApiKey
+      parameters:
+      - name: uuid
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: type
+        in: query
+        schema:
+          type: string
+      responses:
+        default:
+          description: default response
+          content:
+            '*/*':
+              schema:
+                type: boolean
+  /api/cybertracker/navigationlayers:
+    get:
+      operationId: getNavigationLayers
+      parameters:
+      - name: cauuid
+        in: query
+        schema:
+          type: string
+      responses:
+        default:
+          description: default response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CyberTrackerNavigationProxy'
+  /api/cybertracker/navigationlayers/{uuid}:
+    get:
+      operationId: getNavigationLayer
+      parameters:
+      - name: uuid
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        default:
+          description: default response
+          content:
+            '*/*': {}
+    post:
+      operationId: createNavigationLayer
+      parameters:
+      - name: uuid
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CyberTrackerNavigationProxy'
+      responses:
+        default:
+          description: default response
+          content:
+            '*/*':
+              schema:
+                type: string
+    delete:
+      operationId: deleteNavigation
+      parameters:
+      - name: uuid
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        default:
+          description: default response
+          content:
+            '*/*': {}
+  /api/cybertracker/packages:
+    get:
+      operationId: getPackages
+      parameters:
+      - name: cauuid
+        in: query
+        schema:
+          type: string
+      - name: private
+        in: query
+        schema:
+          type: string
+      responses:
+        default:
+          description: default response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CyberTrackerPackageProxy'
+  /api/cybertracker/packages/info/{uuid}:
+    get:
+      operationId: getPackage
+      parameters:
+      - name: uuid
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        default:
+          description: default response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CyberTrackerPackageProxy'
+  /api/cybertracker/packages/{uuid}:
+    get:
+      operationId: getCtPackage
+      parameters:
+      - name: uuid
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        default:
+          description: default response
+          content:
+            '*/*': {}
+    post:
+      operationId: createPackage
+      parameters:
+      - name: uuid
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CyberTrackerPackageProxy'
+      responses:
+        default:
+          description: default response
+          content:
+            '*/*':
+              schema:
+                type: string
+    delete:
+      operationId: deletePackage
+      parameters:
+      - name: uuid
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        default:
+          description: default response
+          content:
+            '*/*': {}
+  /api/dashboardbeta:
+    get:
+      operationId: getAllDashboards
+      responses:
+        default:
+          description: default response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Dashboard'
+    post:
+      operationId: addOrUpdateDashboard
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Dashboard'
+      responses:
+        default:
+          description: default response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Dashboard'
+  /api/dashboardbeta/default:
+    get:
+      operationId: getDefaultDashboard
+      responses:
+        default:
+          description: default response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Dashboard'
+    put:
+      operationId: setUserDefault_1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UsersDefaultDashboard'
+      responses:
+        default:
+          description: default response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Dashboard'
+  /api/dashboardbeta/default/{uuid}:
+    put:
+      operationId: setUserDefault
+      parameters:
+      - name: uuid
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        default:
+          description: default response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Dashboard'
+  /api/dashboardbeta/{uuid}:
+    get:
+      operationId: getDashboard
+      parameters:
+      - name: uuid
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        default:
+          description: default response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Dashboard'
+    delete:
+      operationId: deleteDashboard
+      parameters:
+      - name: uuid
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        default:
+          description: default response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Dashboard'
+  /api/data/{cauuid}:
+    post:
+      operationId: processJsonData
+      parameters:
+      - name: cauuid
+        in: path
+        description: uuid of the conservation area associated with the data
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: string
+      responses:
+        default:
+          description: default response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProcessingResult'
+  /api/dataqueue/detailedItems:
+    get:
+      description: Get details of data queue items that match provided filter
+      operationId: getDetailedItems
+      parameters:
+      - name: cafilter
+        in: query
+        description: only show items from these CAs. A comma separated string of UUIDs
+        schema:
+          type: string
+      - name: status
+        in: query
+        description: comma separated list of status states to include.
+        schema:
+          type: string
+      responses:
+        default:
+          description: default response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ServerDataQueueItemProxy'
+  /api/dataqueue/items:
+    get:
+      description: Get data queue items that match given filter. This will only return
+        items that the user has permission to see
+      operationId: getItems
+      parameters:
+      - name: cafilter
+        in: query
+        description: a comma delimited list of Conservation Area uuids to filter on
+          or NULL for all)
+        schema:
+          type: string
+      - name: status
+        in: query
+        description: comma delimited list of status values to filter on or NULL for
+          all
+        schema:
+          type: string
+      responses:
+        default:
+          description: default response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DataQueueItem'
+    post:
+      description: "Creates an item and associated work item for file uploading. \
+        \ Returns the URL that can be used for uploading the file. Call Type: POST<br>\r\
+        \n\t * Headers: X-Upload-Content-Length - the size in bytes of the file to\
+        \ upload <br>\r\n\t * Payload: a ServerDataQueueItem object\r\n\t * </p>\r\
+        \n\t *<pre>{\r\n\t *   \"conservationArea\":\"8f7fbe1b-201a-4ef4-bda8-14f5581e65ce\"\
+        ,\r\n\t *   \"type\":\"PATROL_XML\",\r\n\t *   \"name\":\"patrol1234.xml\"\
+        \r\n\t *}</pre>"
+      operationId: createItem
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ServerDataQueueItem'
+      responses:
+        default:
+          description: default response
+          content:
+            application/json:
+              schema:
+                type: string
+  /api/dataqueue/items/{uuid}:
+    get:
+      description: Gets a particular data queue item.
+      operationId: getItem
+      parameters:
+      - name: uuid
+        in: path
+        description: the uuid of the item requested
+        required: true
+        schema:
+          type: string
+      responses:
+        default:
+          description: default response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServerDataQueueItem'
+    put:
+      description: "Updates the type and status of a data queue item, e.g. {\r\n\t\
+        \ *   \"type\":\"MISSION_XML\",\r\n\t *   \"status\":\"QUEUED\"\r\n\t * }"
+      operationId: updateItem
+      parameters:
+      - name: uuid
+        in: path
+        description: the uuid of the item to update
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ServerDataQueueItem'
+      responses:
+        default:
+          description: default response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DataQueueItem'
+    delete:
+      description: Deletes the given data queue item (and associated work item if
+        applicable).
+      operationId: deleteItem
+      parameters:
+      - name: uuid
+        in: path
+        description: uuid of the data queue item to delete
+        required: true
+        schema:
+          type: string
+      responses:
+        default:
+          description: default response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServerDataQueueItem'
+  /api/dataqueue/items/{uuid}/file:
+    get:
+      description: Used by SMART Desktop Only
+      operationId: getDataQueueItemFile
+      parameters:
+      - name: uuid
+        in: path
+        description: item UUID
+        required: true
+        schema:
+          type: string
+      responses:
+        default:
+          description: default response
+          content:
+            application/json: {}
+  /api/dataqueue/items/{uuid}/preview:
+    get:
+      description: Gets preview for a particular data queue item.
+      operationId: getItemPreview
+      parameters:
+      - name: uuid
+        in: path
+        description: the uuid of the item requested
+        required: true
+        schema:
+          type: string
+      responses:
+        default:
+          description: default response
+          content:
+            application/json:
+              schema:
+                type: string
+  /api/dataqueue/items/{uuid}/status/{status}:
+    put:
+      description: Updates the status of a data queue item
+      operationId: updateItemStatus
+      parameters:
+      - name: uuid
+        in: path
+        description: the uuid from the item to update
+        required: true
+        schema:
+          type: string
+      - name: status
+        in: path
+        description: the new status from the data queue item
+        required: true
+        schema:
+          type: string
+      responses:
+        default:
+          description: default response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DataQueueItem'
+  /api/desktopuser:
+    get:
+      operationId: getUsers
+      responses:
+        default:
+          description: default response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/EmployeeInfo'
+  /api/desktopuser/caUuidsAllowed:
+    get:
+      operationId: getCaUuids
+      responses:
+        default:
+          description: default response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SimpleConservationAreaList'
+  /api/desktopuser/getCurrent:
+    get:
+      operationId: getCurrentUser_1
+      responses:
+        default:
+          description: default response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SmartUser'
+  /api/desktopuser/iscurrentuseradmin:
+    get:
+      operationId: isCurrentUserAnAdmin_1
+      responses:
+        default:
+          description: default response
+          content:
+            application/json:
+              schema:
+                type: boolean
+  /api/desktopuser/{username}:
+    get:
+      operationId: getUserInCa
+      parameters:
+      - name: username
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: cauuid
+        in: query
+        schema:
+          type: string
+      responses:
+        default:
+          description: default response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmployeeInfo'
+    put:
+      operationId: updateUser_1
+      parameters:
+      - name: username
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: cauuid
+        in: query
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EmployeeInfo'
+      responses:
+        default:
+          description: default response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmployeeInfo'
+    post:
+      operationId: addUser_1
+      parameters:
+      - name: username
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EmployeeInfo'
+      responses:
+        default:
+          description: default response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmployeeInfo'
+    delete:
+      operationId: deactivateUser_1
+      parameters:
+      - name: username
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: caUuid
+        in: query
+        schema:
+          type: string
+      responses:
+        default:
+          description: default response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmployeeInfo'
+  /api/info:
+    get:
+      description: Lists version information for SMART Connect and associated Conservation
+        Areas
+      operationId: getInfo
+      responses:
+        default:
+          description: default response
+          content:
+            application/json: {}
+  /api/maplayer:
+    get:
+      operationId: getAllLAyers
+      responses:
+        default:
+          description: default response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MapLayer'
+  /api/maplayer/{layerName}:
+    post:
+      operationId: addLayer
+      parameters:
+      - name: layerName
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MapLayer'
+      responses:
+        default:
+          description: default response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MapLayer'
+  /api/maplayer/{layerUuid}:
+    get:
+      operationId: getLayer
+      parameters:
+      - name: layerUuid
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        default:
+          description: default response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MapLayer'
+  /api/maplayer/{uuid}:
+    put:
+      operationId: updateLayer
+      parameters:
+      - name: uuid
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MapLayer'
+      responses:
+        default:
+          description: default response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MapLayer'
+    delete:
+      operationId: removeUser
+      parameters:
+      - name: uuid
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        default:
+          description: default response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MapLayer'
+  /api/metadata/configurablemodel:
+    get:
+      operationId: getConfigurableModels
+      parameters:
+      - name: ca_uuid
+        in: query
+        description: query by conservation area (optional)
+        schema:
+          type: string
+      responses:
+        default:
+          description: default response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ConfigurableModelProxy'
+  /api/metadata/configurablemodel/{modeluuid}:
+    get:
+      operationId: getConfigurableModel
+      parameters:
+      - name: modeluuid
+        in: path
+        description: the configurable model uuid
+        required: true
+        schema:
+          type: string
+      - name: format
+        in: query
+        description: if supplied format can be one of xml (default - returns only
+          xml file) or zip (includes icons in zip file) (optional)
+        schema:
+          type: string
+      responses:
+        default:
+          description: default response
+          content:
+            application/xml: {}
+  /api/metadata/datamodel/{cauuid}:
+    get:
+      operationId: getDataModel
+      parameters:
+      - name: cauuid
+        in: path
+        description: uuid of the conservation area to get the data model for
+        required: true
+        schema:
+          type: string
+      responses:
+        default:
+          description: default response
+          content:
+            application/xml: {}
+  /api/metadata/mission/{cauuid}:
+    get:
+      operationId: getMissionMetadata
+      parameters:
+      - name: cauuid
+        in: path
+        description: uuid of the conservation area to get mission metadata for
+        required: true
+        schema:
+          type: string
+      responses:
+        default:
+          description: default response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SurveyDesignMetadata'
+  /api/metadata/patrol/{cauuid}:
+    get:
+      operationId: getPatrolMetadata
+      parameters:
+      - name: cauuid
+        in: path
+        description: uuid of the conservation area to get patrol metadata for
+        required: true
+        schema:
+          type: string
+      responses:
+        default:
+          description: default response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PatrolMetadata'
+  /api/privileges/actions:
+    get:
+      description: Lists all available actions. Returned as a list of SmartActionsProxy
+        representing all actions in the system
+      operationId: getActions
+      responses:
+        default:
+          description: default response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SmartActionsProxy'
+  /api/privileges/roles:
+    get:
+      description: Lists all available roles.
+      operationId: getRoles
+      responses:
+        default:
+          description: default response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SmartActionsProxy'
+    post:
+      description: Creates a new role. Uses the name property of the action object
+        and generates a new uuid string as the role id.
+      operationId: createRole
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SmartUserPermissionProxy'
+      responses:
+        default:
+          description: default response
+          content:
+            application/json: {}
+  /api/privileges/roles/{roleid}:
+    put:
+      description: Updates the role name. Uses the name property of the action object
+        and generated a new uuid string as the role id.
+      operationId: updateRole
+      parameters:
+      - name: roleid
+        in: path
+        description: the role id affected
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SmartUserPermissionProxy'
+      responses:
+        default:
+          description: default response
+          content:
+            application/json: {}
+    delete:
+      description: "Removes a role from the system, includes removing any user links\
+        \ to the role."
+      operationId: deleteRole
+      parameters:
+      - name: roleid
+        in: path
+        description: the role id affected
+        required: true
+        schema:
+          type: string
+      responses:
+        default:
+          description: default response
+          content:
+            application/json: {}
+  /api/privileges/roles/{roleid}/action:
+    get:
+      description: Gets all actions associated with a given role
+      operationId: getRoleActions
+      parameters:
+      - name: roleid
+        in: path
+        description: the role id affected
+        required: true
+        schema:
+          type: string
+      responses:
+        default:
+          description: default response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SmartUserPermissionProxy'
+  /api/privileges/roles/{roleid}/action/{action}:
+    post:
+      description: Adds a new action to a role.
+      operationId: addRoleAction
+      parameters:
+      - name: roleid
+        in: path
+        description: the role id affected
+        required: true
+        schema:
+          type: string
+      - name: action
+        in: path
+        description: the action to add
+        required: true
+        schema:
+          type: string
+      responses:
+        default:
+          description: default response
+          content:
+            application/json: {}
+    delete:
+      description: Removes an action from a given role.
+      operationId: deleteRoleAction
+      parameters:
+      - name: roleid
+        in: path
+        description: the role id affected
+        required: true
+        schema:
+          type: string
+      - name: action
+        in: path
+        description: the action affected
+        required: true
+        schema:
+          type: string
+      responses:
+        default:
+          description: default response
+          content:
+            application/json: {}
+  /api/privileges/roles/{roleid}/action/{action}/{resource}:
+    post:
+      description: Add a new action with a specific resource to a role
+      operationId: addRoleActions
+      parameters:
+      - name: roleid
+        in: path
+        description: the role to update
+        required: true
+        schema:
+          type: string
+      - name: action
+        in: path
+        description: the action to add
+        required: true
+        schema:
+          type: string
+      - name: resource
+        in: path
+        description: the resource affected
+        required: true
+        schema:
+          type: string
+      responses:
+        default:
+          description: default response
+          content:
+            application/json: {}
+    delete:
+      description: Removes an action and specific resource from a given role.
+      operationId: deleteRoleActions
+      parameters:
+      - name: roleid
+        in: path
+        description: the role id affected
+        required: true
+        schema:
+          type: string
+      - name: action
+        in: path
+        description: the action to remove
+        required: true
+        schema:
+          type: string
+      - name: resource
+        in: path
+        description: the resource affected
+        required: true
+        schema:
+          type: string
+      responses:
+        default:
+          description: default response
+          content:
+            application/json: {}
+  /api/privileges/user/{username}:
+    get:
+      description: Lists all roles and actions associated with a given user.
+      operationId: getUserPrivileges
+      parameters:
+      - name: username
+        in: path
+        description: the username affected
+        required: true
+        schema:
+          type: string
+      responses:
+        default:
+          description: default response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SmartUserPermissionProxy'
+  /api/privileges/user/{username}/action/{action}:
+    post:
+      description: Adds a new action for a given user.
+      operationId: addUserActions
+      parameters:
+      - name: username
+        in: path
+        description: the username affected
+        required: true
+        schema:
+          type: string
+      - name: action
+        in: path
+        description: the action to add
+        required: true
+        schema:
+          type: string
+      responses:
+        default:
+          description: default response
+          content:
+            application/json: {}
+    delete:
+      description: Removes an action from a given user.
+      operationId: deleteUserAction
+      parameters:
+      - name: username
+        in: path
+        description: the username affected
+        required: true
+        schema:
+          type: string
+      - name: action
+        in: path
+        description: the action to remove
+        required: true
+        schema:
+          type: string
+      responses:
+        default:
+          description: default response
+          content:
+            application/json: {}
+  /api/privileges/user/{username}/action/{action}/{resource}:
+    post:
+      description: Add a new action with a specific resource for a given user.
+      operationId: addUserActions_1
+      parameters:
+      - name: username
+        in: path
+        description: the username affected
+        required: true
+        schema:
+          type: string
+      - name: action
+        in: path
+        description: the action to add
+        required: true
+        schema:
+          type: string
+      - name: resource
+        in: path
+        description: the resource affected
+        required: true
+        schema:
+          type: string
+      responses:
+        default:
+          description: default response
+          content:
+            application/json: {}
+    delete:
+      description: Removes an action for a specific resource from a given user.
+      operationId: deleteUserActions
+      parameters:
+      - name: username
+        in: path
+        description: the username affected
+        required: true
+        schema:
+          type: string
+      - name: action
+        in: path
+        description: the action to remove
+        required: true
+        schema:
+          type: string
+      - name: resource
+        in: path
+        description: the resource affected
+        required: true
+        schema:
+          type: string
+      responses:
+        default:
+          description: default response
+          content:
+            application/json: {}
+  /api/privileges/user/{username}/role/{role}:
+    post:
+      description: Adds a new action for a given user.
+      operationId: addUserRole
+      parameters:
+      - name: username
+        in: path
+        description: the username to edit
+        required: true
+        schema:
+          type: string
+      - name: role
+        in: path
+        description: the role id affected
+        required: true
+        schema:
+          type: string
+      responses:
+        default:
+          description: default response
+          content:
+            application/json: {}
+    delete:
+      description: Removes an role from a given user.
+      operationId: deleteUserRole
+      parameters:
+      - name: username
+        in: path
+        description: the username to edit
+        required: true
+        schema:
+          type: string
+      - name: role
+        in: path
+        description: the role to remove
+        required: true
+        schema:
+          type: string
+      responses:
+        default:
+          description: default response
+          content:
+            application/json: {}
+  /api/query:
+    get:
+      description: Returns all queries the current user is able to view/run
+      operationId: getAllQueriesForUser
+      parameters:
+      - name: type
+        in: query
+        description: "optional type String - only return queries that match the type\
+          \ key provided, see getAllQueryTypes for list of possible values. leave\
+          \ blank to get everything."
+        schema:
+          type: string
+      - name: ca
+        in: query
+        description: optional UUID - only return queries that match the CA UUID provided.
+          leave blank to get everything.
+        schema:
+          type: string
+      - name: isccaa
+        in: query
+        description: "optional boolean - only returns string that are CCAA queries\
+          \ when True, only ones that are not when False. leave blank to get everything."
+        schema:
+          type: boolean
+      responses:
+        default:
+          description: default response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/QueryProxy'
+  /api/query/custom/patrol:
+    get:
+      description: Runs query patrol and returns the results as json
+      operationId: runPatrolQuery
+      parameters:
+      - name: patrol_uuid
+        in: query
+        description: query by smart patrol uuid
+        schema:
+          type: string
+      - name: client_patrol_uuid
+        in: query
+        description: query by client patrol uuid
+        schema:
+          type: string
+      responses:
+        default:
+          description: default response
+          content:
+            '*/*': {}
+  /api/query/custom/waypoint:
+    get:
+      description: Queries all waypoints and returns the results as json
+      operationId: queryWaypoints
+      parameters:
+      - name: waypoint_uuid
+        in: query
+        description: smart waypoint uuid
+        schema:
+          type: string
+      - name: client_waypoint_uuid
+        in: query
+        description: client waypoint uuid
+        schema:
+          type: string
+      - name: waypoint_lastmodified
+        in: query
+        description: waypoint last modified date
+        schema:
+          type: string
+      - name: waypoint_date
+        in: query
+        description: waypoint date
+        schema:
+          type: string
+      responses:
+        default:
+          description: default response
+          content:
+            '*/*': {}
+  /api/query/custom/waypoint/incident:
+    get:
+      description: Runs a custom incident query and returns the results as json
+      operationId: runIndependentIncidentQuery
+      parameters:
+      - name: incident_uuid
+        in: query
+        description: smart incident uuid
+        schema:
+          type: string
+      - name: client_incident_uuid
+        in: query
+        description: client incident uuid
+        schema:
+          type: string
+      - name: incident_id
+        in: query
+        description: incident id
+        schema:
+          type: string
+      - name: waypoint_lastmodified
+        in: query
+        description: waypoint last modified date
+        schema:
+          type: string
+      - name: waypoint_date
+        in: query
+        description: waypoint date
+        schema:
+          type: string
+      responses:
+        default:
+          description: default response
+          content:
+            '*/*': {}
+  /api/query/custom/waypoint/patrol:
+    get:
+      description: Runs query patrol and returns the results as json
+      operationId: runPatrolQuery_1
+      parameters:
+      - name: patrol_uuid
+        in: query
+        description: query by smart patrol uuid
+        schema:
+          type: string
+      - name: client_patrol_uuid
+        in: query
+        description: query by client patrol uuid
+        schema:
+          type: string
+      - name: patrolleg_uuid
+        in: query
+        description: query by smart patrol leg uuid
+        schema:
+          type: string
+      - name: client_patrolleg_uuid
+        in: query
+        description: query by client patrol leg uuid
+        schema:
+          type: string
+      - name: patrol_id
+        in: query
+        description: query by smart patrol id
+        schema:
+          type: string
+      - name: waypoint_date
+        in: query
+        description: query by waypoint date
+        schema:
+          type: string
+      - name: waypoint_uuid
+        in: query
+        description: query by waypoint uuid
+        schema:
+          type: string
+      - name: waypoint_lastmodified
+        in: query
+        description: query by waypoint last modified date
+        schema:
+          type: string
+      - name: patrol_startdate
+        in: query
+        description: query by patrol start date
+        schema:
+          type: string
+      - name: patrol_enddate
+        in: query
+        description: query by patrol end date
+        schema:
+          type: string
+      responses:
+        default:
+          description: default response
+          content:
+            '*/*': {}
+  /api/query/tree:
+    get:
+      operationId: getQueryTreeForUser
+      parameters:
+      - name: type
+        in: query
+        schema:
+          type: string
+      - name: ca
+        in: query
+        schema:
+          type: string
+      - name: isccaa
+        in: query
+        schema:
+          type: boolean
+      responses:
+        default:
+          description: default response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/FolderProxyQueryProxy'
+  /api/query/{queryuuid}:
+    get:
+      description: Runs a query and returns the results.
+      operationId: getQueryResults
+      parameters:
+      - name: queryuuid
+        in: path
+        description: the uuid of the query requested
+        required: true
+        schema:
+          type: string
+      - name: format
+        in: query
+        description: "requested format, not all options makes sense for all query\
+          \ types: csv, shp, html, tif, geojson"
+        schema:
+          type: string
+      - name: start_date
+        in: query
+        description: "start date of query, in the form yyyy-MM-dd"
+        schema:
+          type: string
+      - name: end_date
+        in: query
+        description: "end date of query, in the form yyyy-MM-dd"
+        schema:
+          type: string
+      - name: date_filter
+        in: query
+        description: "date field type, not all make sense for all queries: waypointdate,\
+          \ patrolstart, patrolend, missiontrackdate, missionstartdate, missionenddate,\
+          \ intellreceiveddate"
+        schema:
+          type: string
+      - name: delimiter
+        in: query
+        description: delimiter override to use in CSV format
+        schema:
+          type: string
+      - name: cafilter
+        in: query
+        description: "provided as a comma separated list of CA uuids, only runs the\
+          \ query against these CAs."
+        schema:
+          type: string
+      - name: sortcolumn
+        in: query
+        description: "the attribute key of the column you wish to sort by. It is tricky\
+          \ to know what columns are valid here as the queries are all very dynamic\
+          \ and there are many type. eg, &sortcolumn=wp_id \r\n\t * \t\t\t\t\t\tfor\
+          \ details of valid columns see here:  https://app.assembla.com/spaces/smart-cs/wiki/SMART_Connect_Query_Sorting_Fields\
+          \  "
+        schema:
+          type: string
+      - name: sortdirection
+        in: query
+        description: "set this to \"descending\" (or \"desc\") to get reverse order,\
+          \ otherwise you will get ascending order by default.  eg: &sortdirection=descending\
+          \ \r\n\t * \t\t\tThis parameter will be ignored if provided without a sortcolumn."
+        schema:
+          type: string
+      - name: srid
+        in: query
+        description: "the requested output projection SRID. The default is 4326 (WGS84,\
+          \ standard Lat/long coordinates). This parameter is ignored if the 'format'\
+          \ is not geojson or shp. (Note: for google map's projection you must use\
+          \ the official srid of 3857, 900913 doesn't work."
+        schema:
+          type: string
+      - name: includeuuids
+        in: query
+        description: "optional; if \"true\" then the observation uuid, waypoint uuid\
+          \ and conservation area uuid are include in the results if appropriate for\
+          \ the query type; for summary queries that include a group by Conservation\
+          \ Area column, the value for the Conservation Area will be the uuid instead\
+          \ of the name/id when includeuuids is true"
+        schema:
+          type: string
+      responses:
+        default:
+          description: default response
+          content:
+            '*/*': {}
+  /api/querytype:
+    get:
+      description: Gets all valid query types
+      operationId: getAllQueryTypes
+      responses:
+        default:
+          description: default response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+  /api/quicklink:
+    get:
+      operationId: getAllQuickLinks
+      responses:
+        default:
+          description: default response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Quicklink'
+    post:
+      operationId: addQuicklink
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Quicklink'
+      responses:
+        default:
+          description: default response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Quicklink'
+  /api/quicklink/addtoall:
+    post:
+      operationId: addQuicklinkToAll
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Quicklink'
+      responses:
+        default:
+          description: default response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Quicklink'
+  /api/quicklink/addtolist:
+    get:
+      operationId: addQuicklinkToList
+      parameters:
+      - name: quicklinkUuid
+        in: query
+        schema:
+          type: string
+          format: uuid
+      responses:
+        default:
+          description: default response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserQuicklink'
+  /api/quicklink/adminonly:
+    get:
+      operationId: getAllAdminCreatedQuickLinks
+      responses:
+        default:
+          description: default response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Quicklink'
+  /api/quicklink/user:
+    get:
+      operationId: getQuickLinksForSessionUser
+      responses:
+        default:
+          description: default response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/QuicklinkWrapper'
+  /api/quicklink/user/{uuid}:
+    get:
+      operationId: getQuicklinksForUser
+      parameters:
+      - name: uuid
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        default:
+          description: default response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/QuicklinkWrapper'
+    put:
+      operationId: UpdateUserQuicklink
+      parameters:
+      - name: uuid
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserQuicklink'
+      responses:
+        default:
+          description: default response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserQuicklink'
+    delete:
+      operationId: removeUserQuicklink
+      parameters:
+      - name: uuid
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        default:
+          description: default response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserQuicklink'
+  /api/quicklink/{uuid}:
+    put:
+      operationId: UpdateQuicklink
+      parameters:
+      - name: uuid
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Quicklink'
+      responses:
+        default:
+          description: default response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Quicklink'
+    delete:
+      operationId: removeQuicklink
+      parameters:
+      - name: uuid
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        default:
+          description: default response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Quicklink'
+  /api/report:
+    get:
+      description: Returns all report objects the current user is able to view
+      operationId: getAllReportForUser
+      responses:
+        default:
+          description: default response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ReportProxy'
+  /api/report/definition/{reportuuid}:
+    get:
+      description: "Returns the report requested, not the results of the report, but\
+        \ the report object definition/DB row"
+      operationId: getReport
+      parameters:
+      - name: reportuuid
+        in: path
+        description: the UUID of the report requested
+        required: true
+        schema:
+          type: string
+      responses:
+        default:
+          description: default response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReportProxy'
+  /api/report/tree:
+    get:
+      operationId: getReportTreeForUser
+      responses:
+        default:
+          description: default response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/FolderProxyReportProxy'
+  /api/report/{reportuuid}:
+    get:
+      description: Runs a report and returns the results.
+      operationId: exectueReport
+      parameters:
+      - name: reportuuid
+        in: path
+        description: The report UUID
+        required: true
+        schema:
+          type: string
+      - name: cafilter
+        in: query
+        description: "only run against CAs listed in this parameter, comma separated\
+          \ list of UUIDs."
+        schema:
+          type: string
+      - name: format
+        in: query
+        description: "html, pdf, doc, odt are the options."
+        schema:
+          type: string
+      - name: parameterList
+        in: query
+        description: "any custom parameters in a comma separated list, eg. &parameterList=param1,value1,param2,value2"
+        schema:
+          type: string
+      responses:
+        default:
+          description: default response
+          content:
+            '*/*': {}
+  /api/report/{reportuuid}/params:
+    get:
+      description: Returns all of the parameters of the given report
+      operationId: getReportsParameters
+      parameters:
+      - name: reportuuid
+        in: path
+        description: the report uuid
+        required: true
+        schema:
+          type: string
+      responses:
+        default:
+          description: default response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ReportParameter'
+  /api/sharedlink:
+    get:
+      description: List all Shared Links
+      operationId: getSharedLinks
+      responses:
+        default:
+          description: default response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SharedLink'
+    post:
+      description: Create a new shared link. Expired Links are also cleaned up (deleted)
+        when a new link is created.
+      operationId: createSharedLink
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SharedLink'
+      responses:
+        default:
+          description: default response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SharedLink'
+  /api/sharedlink/token:
+    post:
+      description: "Create a new full-access user token. This allows you to pass a\
+        \ variable, &token=9dd23c7b-657c-492d-9857-9981713438b3  in a URL instead\
+        \ of using the basic auth. \r\n\t * The access granted is the same as if the\
+        \ token creator was making the request themselves. This token is deleted the\
+        \ same way as SharedLinks, calling the removeSharedlinks with a token\r\n\t\
+        \ * uuid will delete and invalid the token. Expired Links are also cleaned\
+        \ up (deleted) when a new link is created."
+      operationId: createToken
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SharedLink'
+      responses:
+        default:
+          description: default response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SharedLink'
+  /api/sharedlink/{uuid}:
+    delete:
+      description: Delete a shared link
+      operationId: removeSharedLink
+      parameters:
+      - name: uuid
+        in: path
+        description: the link's uuid to be deleted
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        default:
+          description: default response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SharedLink'
+  /api/smartcollect/source:
+    get:
+      description: if no query parameter is specified this returns all collect users;
+        otherwise it returns the collect user with the matching source (if not found
+        a new one is created and returned)
+      operationId: getUsers_1
+      parameters:
+      - name: source
+        in: query
+        description: the identifier for the user to return; if not found a new user
+          with this identifier is created
+        schema:
+          type: string
+      - name: deviceId
+        in: query
+        description: 'the deviceid for the user to return; must be provided if source
+          is provided '
+        schema:
+          type: string
+      - name: search
+        in: query
+        description: 'the search string to use to search for users.  only used if
+          the source parameter is null '
+        schema:
+          type: string
+      - name: limit
+        in: query
+        description: the maximum results from the search; only used if search parameter
+          i not null
+        schema:
+          type: string
+      responses:
+        default:
+          description: default response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SmartCollectUser'
+  /api/smartcollect/source/{uuid}:
+    get:
+      description: get full details about a community user
+      operationId: getUser_1
+      parameters:
+      - name: uuid
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        default:
+          description: default response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SmartCollectConnectUser'
+    put:
+      description: Updates the state associated with the given source.  If sendvalidation
+        is provided and the user provided an email address then attempts to send validation
+        otherwise not update is made
+      operationId: updateState
+      parameters:
+      - name: uuid
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: state
+        in: query
+        description: the new state for the user
+        schema:
+          type: string
+      - name: sendvalidation
+        in: query
+        description: if true then a new user validation will be sent
+        schema:
+          type: string
+      responses:
+        default:
+          description: default response
+          content:
+            application/json: {}
+    delete:
+      description: deletes the community user
+      operationId: deleteUser
+      parameters:
+      - name: uuid
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        default:
+          description: default response
+          content:
+            application/json: {}
+  /api/uploader/{uploaduuid}:
+    get:
+      description: Gets the status of the current upload.
+      operationId: getStatus
+      parameters:
+      - name: uploaduuid
+        in: path
+        description: the uuid of the item
+        required: true
+        schema:
+          type: string
+      responses:
+        default:
+          description: default response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UploadStatus'
+    put:
+      description: "Uploads a file to the server's data Queue.</p>\r\n\t * \t<p>\r\
+        \n\t * URL: ../server/api/uploader/{uploaduuid}<br>\r\n\t * Call Type: PUT<br>\r\
+        \n\t * Payload: Multipart data containing an \"upload_file\" item\r\n\t *\
+        \ \t</p>\r\n\t * <pre> ------WebKitFormBoundaryYhW4Zu5MYMA5orxj\r\n\t * Content-Disposition:\
+        \ form-data; name=\"upload_file\"; filename=\"Demo_00001.xml\"\r\n\t * Content-Type:\
+        \ text/xml\r\n\t * <?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"\
+        yes\"?>\r\n\t * ....the rest of an XML file upload...\r\n\t * ------WebKitFormBoundaryYhW4Zu5MYMA5orxj--\r\
+        \n\t * </pre>"
+      operationId: updateFile
+      parameters:
+      - name: uploaduuid
+        in: path
+        description: "the uuid of the workitem, you must first call the \"create work\
+          \ item\" API to generate this uuid: ../server/api/dataqueue/items/ , then\
+          \ you can upload the file."
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/octet-stream:
+            schema:
+              type: object
+      responses:
+        default:
+          description: default response
+          content:
+            application/json: {}
+    post:
+      description: Uploads data to server via POST
+      operationId: updateFilePost_1
+      parameters:
+      - name: uploaduuid
+        in: path
+        description: "provided in the URL, uuid of the workItem this file upload belongs\
+          \ to"
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/MultipartFormDataInput'
+      responses:
+        default:
+          description: default response
+          content:
+            application/json: {}
+components:
+  schemas:
+    ActionResource:
+      type: object
+      properties:
+        key:
+          type: string
+          format: uuid
+        name:
+          type: string
+    Alert:
+      type: object
+      properties:
+        ca:
+          $ref: '#/components/schemas/ConservationAreaInfo'
+        creatorUuid:
+          type: string
+          format: uuid
+        date:
+          type: string
+          format: date-time
+        description:
+          type: string
+        level:
+          type: integer
+          format: int32
+        source:
+          type: string
+          enum:
+          - USER
+          - CYBERTRACKER
+          - GLOBALFORESTWATCH
+        status:
+          type: string
+          enum:
+          - ACTIVE
+          - DISABLED
+        track:
+          type: string
+        typeUuid:
+          type: string
+          format: uuid
+        userGeneratedId:
+          type: string
+        uuid:
+          type: string
+          format: uuid
+        x:
+          type: number
+          format: double
+        "y":
+          type: number
+          format: double
+    AlertFilterDefault:
+      type: object
+      properties:
+        defaultActive:
+          type: boolean
+        defaultCaUuids:
+          type: string
+        defaultDisabled:
+          type: boolean
+        defaultLevel1:
+          type: boolean
+        defaultLevel2:
+          type: boolean
+        defaultLevel3:
+          type: boolean
+        defaultLevel4:
+          type: boolean
+        defaultLevel5:
+          type: boolean
+        defaultPastHours:
+          type: integer
+          format: int32
+        defaultText:
+          type: string
+        defaultTypeUuids:
+          type: string
+        secondsRefresh:
+          type: integer
+          format: int32
+        startingLat:
+          type: number
+          format: float
+        startingLong:
+          type: number
+          format: float
+        startingZoomLevel:
+          type: integer
+          format: int32
+        uuid:
+          type: string
+          format: uuid
+    AlertType:
+      type: object
+      properties:
+        color:
+          type: string
+        customIcon:
+          type: string
+        label:
+          type: string
+        markerColor:
+          type: string
+        markerIcon:
+          type: string
+        opacity:
+          type: string
+        spin:
+          type: boolean
+        uuid:
+          type: string
+          format: uuid
+    ConfigurableModelProxy:
+      type: object
+      properties:
+        ca_id:
+          type: string
+        ca_name:
+          type: string
+        ca_uuid:
+          type: string
+          format: uuid
+        name:
+          type: string
+        translations:
+          type: array
+          items:
+            $ref: '#/components/schemas/Translation'
+        uuid:
+          type: string
+          format: uuid
+    ConservationAreaInfo:
+      type: object
+      properties:
+        label:
+          type: string
+        status:
+          type: string
+          enum:
+          - DELETING
+          - UPLOADING
+          - DATA
+          - CCAA
+          - NODATA
+          - ERROR
+        uuid:
+          type: string
+          format: uuid
+        version:
+          type: string
+          format: uuid
+    ConservationAreaProxy:
+      type: object
+      properties:
+        administrativeAreasJson:
+          type: string
+        bufferedManagementAreaJson:
+          type: string
+        caBoundaryJson:
+          type: string
+        description:
+          type: string
+        designation:
+          type: string
+        label:
+          type: string
+        location:
+          type: string
+        managementSectorsJson:
+          type: string
+        organization:
+          type: string
+        owner:
+          type: string
+        patrolSectorsJson:
+          type: string
+        pointOfContact:
+          type: string
+        revision:
+          type: integer
+          format: int64
+        status:
+          type: string
+          enum:
+          - DELETING
+          - UPLOADING
+          - DATA
+          - CCAA
+          - NODATA
+          - ERROR
+        uuid:
+          type: string
+          format: uuid
+        version:
+          type: string
+          format: uuid
+    CyberTrackerNavigationProxy:
+      type: object
+      properties:
+        caLabel:
+          type: string
+        caUuid:
+          type: string
+          format: uuid
+        name:
+          type: string
+        uploadedDate:
+          type: string
+          format: date-time
+        uuid:
+          type: string
+          format: uuid
+    CyberTrackerPackageProxy:
+      type: object
+      properties:
+        appLink:
+          type: string
+        caLabel:
+          type: string
+        caUuid:
+          type: string
+          format: uuid
+        isPrivate:
+          type: boolean
+        name:
+          type: string
+        type:
+          type: string
+        uploadedDate:
+          type: string
+          format: date-time
+        uuid:
+          type: string
+          format: uuid
+        version:
+          type: string
+    Dashboard:
+      type: object
+      properties:
+        customDate1From:
+          type: string
+        customDate1To:
+          type: string
+        customDate2From:
+          type: string
+        customDate2To:
+          type: string
+        dateRange1:
+          type: integer
+          format: int32
+        dateRange2:
+          type: integer
+          format: int32
+        label:
+          type: string
+        parameterList1:
+          type: string
+        parameterList2:
+          type: string
+        reportUuid1:
+          type: string
+          format: uuid
+        reportUuid2:
+          type: string
+          format: uuid
+        uuid:
+          type: string
+          format: uuid
+    DataQueueItem:
+      type: object
+      properties:
+        conservationArea:
+          type: string
+          format: uuid
+        name:
+          type: string
+        type:
+          type: string
+        uuid:
+          type: string
+          format: uuid
+    EmployeeInfo:
+      type: object
+      properties:
+        allCasUserIsIn:
+          type: array
+          items:
+            $ref: '#/components/schemas/SimpleConservationAreaList'
+        caLabel:
+          type: string
+        caUuid:
+          type: string
+          format: uuid
+        familyName:
+          type: string
+        gender:
+          type: string
+        givenName:
+          type: string
+        id:
+          type: string
+        smartPassword:
+          type: string
+        smartUserId:
+          type: string
+        userLevelKey:
+          type: string
+        uuid:
+          type: string
+          format: uuid
+    FolderProxyQueryProxy:
+      type: object
+      properties:
+        caUuid:
+          type: string
+          format: uuid
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/QueryProxy'
+        name:
+          type: string
+        subFolders:
+          type: array
+          items:
+            $ref: '#/components/schemas/FolderProxyQueryProxy'
+    FolderProxyReportProxy:
+      type: object
+      properties:
+        caUuid:
+          type: string
+          format: uuid
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/ReportProxy'
+        name:
+          type: string
+        subFolders:
+          type: array
+          items:
+            $ref: '#/components/schemas/FolderProxyReportProxy'
+    GeoJsonAlert:
+      type: object
+      properties:
+        accuracy:
+          type: string
+        altitude:
+          type: string
+        caUuid:
+          type: string
+          format: uuid
+        dateTime:
+          type: string
+          format: date-time
+        description:
+          type: string
+        deviceId:
+          type: string
+        feature:
+          type: array
+          writeOnly: true
+          items:
+            $ref: '#/components/schemas/GeoJsonFeature'
+        features:
+          type: array
+          items:
+            $ref: '#/components/schemas/GeoJsonFeature'
+        id:
+          type: string
+        latitude:
+          type: number
+          format: double
+        level:
+          type: integer
+          format: int32
+        longitude:
+          type: number
+          format: double
+        sighting:
+          type: object
+        type:
+          type: string
+        typeUuid:
+          type: string
+          format: uuid
+    GeoJsonFeature:
+      type: object
+      properties:
+        geometry:
+          $ref: '#/components/schemas/GeoJsonGeometry'
+        properties:
+          $ref: '#/components/schemas/GeoJsonProperties'
+        type:
+          type: string
+    GeoJsonGeometry:
+      type: object
+      properties:
+        coordinates:
+          type: array
+          items:
+            type: number
+            format: double
+        type:
+          type: string
+    GeoJsonProperties:
+      type: object
+      properties:
+        accuracy:
+          type: string
+        altitude:
+          type: string
+        caUuid:
+          type: string
+          format: uuid
+        dateTime:
+          type: string
+        description:
+          type: string
+        deviceId:
+          type: string
+        id:
+          type: string
+        latitude:
+          type: string
+        level:
+          type: integer
+          format: int32
+        longitude:
+          type: string
+        sighting:
+          $ref: '#/components/schemas/GeoJsonSighting'
+        typeUuid:
+          type: string
+          format: uuid
+    GeoJsonSighting:
+      type: object
+      properties:
+        observationId:
+          type: integer
+          format: int32
+        patrolId:
+          type: string
+    InputPart:
+      type: object
+      properties:
+        bodyAsString:
+          type: string
+        contentTypeFromMessage:
+          type: boolean
+        headers:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: string
+        mediaType:
+          type: object
+          properties:
+            parameters:
+              type: object
+              additionalProperties:
+                type: string
+            subtype:
+              type: string
+            type:
+              type: string
+            wildcardSubtype:
+              type: boolean
+            wildcardType:
+              type: boolean
+    JSONArray:
+      type: array
+      properties:
+        empty:
+          type: boolean
+      items:
+        type: object
+    ListOption:
+      type: object
+      properties:
+        id:
+          type: string
+        names:
+          type: array
+          items:
+            $ref: '#/components/schemas/Name'
+    MapLayer:
+      type: object
+      properties:
+        active:
+          type: boolean
+        layerName:
+          type: string
+        layerOrder:
+          type: integer
+          format: int32
+        layerType:
+          type: string
+          enum:
+          - WMS
+        token:
+          type: string
+        uuid:
+          type: string
+          format: uuid
+        wmsLayerList:
+          type: string
+    MissionAttributeMetadata:
+      type: object
+      properties:
+        id:
+          type: string
+        linkTo:
+          type: string
+        listOptions:
+          type: array
+          items:
+            $ref: '#/components/schemas/ListOption'
+        names:
+          type: array
+          items:
+            $ref: '#/components/schemas/Name'
+        required:
+          type: boolean
+          writeOnly: true
+        requiredExpression:
+          type: string
+          writeOnly: true
+        requiredWhen:
+          type: string
+        type:
+          type: string
+    MultipartFormDataInput:
+      type: object
+      properties:
+        formDataMap:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              $ref: '#/components/schemas/InputPart'
+        parts:
+          type: array
+          items:
+            $ref: '#/components/schemas/InputPart'
+        preamble:
+          type: string
+    Name:
+      type: object
+      properties:
+        locale:
+          type: string
+        name:
+          type: string
+    PatrolAttributeMetadata:
+      type: object
+      properties:
+        id:
+          type: string
+        linkTo:
+          type: string
+        listOptions:
+          type: array
+          items:
+            $ref: '#/components/schemas/ListOption'
+        names:
+          type: array
+          items:
+            $ref: '#/components/schemas/Name'
+        required:
+          type: boolean
+          writeOnly: true
+        requiredExpression:
+          type: string
+          writeOnly: true
+        requiredWhen:
+          type: string
+        type:
+          type: string
+    PatrolMetadata:
+      type: object
+      properties:
+        patrolLegMetadata:
+          type: array
+          items:
+            $ref: '#/components/schemas/PatrolAttributeMetadata'
+        patrolMetadata:
+          type: array
+          items:
+            $ref: '#/components/schemas/PatrolAttributeMetadata'
+        signatureTypes:
+          $ref: '#/components/schemas/PatrolAttributeMetadata'
+        waypointMetadata:
+          type: array
+          items:
+            $ref: '#/components/schemas/PatrolAttributeMetadata'
+    ProcessingResult:
+      type: object
+      properties:
+        message:
+          type: string
+        warnings:
+          type: array
+          items:
+            type: string
+    QueryProxy:
+      type: object
+      properties:
+        caUuid:
+          type: string
+          format: uuid
+        conservationArea:
+          type: string
+        folderUuid:
+          type: string
+          format: uuid
+        iconName:
+          type: string
+        id:
+          type: string
+        isCcaa:
+          type: boolean
+        isShared:
+          type: boolean
+        name:
+          type: string
+        type:
+          type: string
+        typeKey:
+          type: string
+        uuid:
+          type: string
+          format: uuid
+    Quicklink:
+      type: object
+      properties:
+        adminCreated:
+          type: boolean
+        createdBy:
+          type: string
+          format: uuid
+        createdOn:
+          type: string
+          format: date-time
+        label:
+          type: string
+        url:
+          type: string
+        uuid:
+          type: string
+          format: uuid
+    QuicklinkWrapper:
+      type: object
+      properties:
+        label:
+          type: string
+        order:
+          type: integer
+          format: int32
+        url:
+          type: string
+        uuid:
+          type: string
+          format: uuid
+    ReportParameter:
+      type: object
+      properties:
+        children:
+          type: array
+          items:
+            $ref: '#/components/schemas/ReportParameter'
+        defaultValue:
+          type: object
+        displayText:
+          type: string
+        isMultiList:
+          type: boolean
+        isRequired:
+          type: boolean
+        name:
+          type: string
+        options:
+          type: array
+          items:
+            type: array
+            items:
+              type: string
+        type:
+          type: string
+          enum:
+          - DATE
+          - TIME
+          - DATETIME
+          - DOUBLE
+          - INTEGER
+          - STRING
+          - BOOLEAN
+          - GROUP
+          - LIST
+          - OTHER
+    ReportProxy:
+      type: object
+      properties:
+        caUuid:
+          type: string
+          format: uuid
+        conservationArea:
+          type: string
+        folderUuid:
+          type: string
+          format: uuid
+        id:
+          type: string
+        isCcaa:
+          type: boolean
+        isShared:
+          type: boolean
+        name:
+          type: string
+        uuid:
+          type: string
+          format: uuid
+    ServerDataQueueItem:
+      type: object
+      properties:
+        conservationArea:
+          type: string
+          format: uuid
+        file:
+          type: string
+        lastModified:
+          type: string
+          format: date-time
+        name:
+          type: string
+        status:
+          type: string
+          enum:
+          - UPLOADING
+          - QUEUED
+          - PROCESSING
+          - COMPLETE
+          - ERROR
+        statusMessage:
+          type: string
+        type:
+          type: string
+        uploadedBy:
+          type: string
+        uploadedDate:
+          type: string
+          format: date-time
+        uuid:
+          type: string
+          format: uuid
+        workItem:
+          type: string
+          format: uuid
+    ServerDataQueueItemProxy:
+      type: object
+      properties:
+        caName:
+          type: string
+        conservationArea:
+          type: string
+          format: uuid
+        lastModifiedDate:
+          type: string
+          format: date-time
+        name:
+          type: string
+        status:
+          type: string
+          enum:
+          - UPLOADING
+          - QUEUED
+          - PROCESSING
+          - COMPLETE
+          - ERROR
+        type:
+          type: string
+        uploadedBy:
+          type: string
+        uploadedDate:
+          type: string
+          format: date-time
+        uuid:
+          type: string
+          format: uuid
+    SharedLink:
+      type: object
+      properties:
+        allowedIp:
+          type: string
+        conservationArea:
+          type: string
+          format: uuid
+        dateCreated:
+          type: string
+          format: date-time
+        expiresAfter:
+          type: integer
+          format: int32
+        expiresAt:
+          type: string
+          format: date-time
+        ownerUsername:
+          type: string
+        ownerUuid:
+          type: string
+          format: uuid
+        permissionUserUuid:
+          type: string
+          format: uuid
+        permissionUsername:
+          type: string
+        url:
+          type: string
+        userToken:
+          type: boolean
+        uuid:
+          type: string
+          format: uuid
+    SimpleConservationAreaList:
+      type: object
+      properties:
+        name:
+          type: string
+        uuid:
+          type: string
+          format: uuid
+    SmartActionsProxy:
+      type: object
+      properties:
+        key:
+          type: string
+        name:
+          type: string
+        resources:
+          type: array
+          items:
+            $ref: '#/components/schemas/ActionResource'
+    SmartCollectConnectUser:
+      type: object
+      properties:
+        deviceId:
+          type: string
+        source:
+          type: string
+        state:
+          type: string
+          enum:
+          - BLACKLISTED
+          - VALIDATED
+          - NEW
+          - VALIDATION_PENDING
+        uuid:
+          type: string
+          format: uuid
+        validateSentDate:
+          type: string
+          format: date-time
+        validationKey:
+          type: string
+    SmartCollectUser:
+      type: object
+      properties:
+        deviceId:
+          type: string
+        source:
+          type: string
+        state:
+          type: string
+          enum:
+          - BLACKLISTED
+          - VALIDATED
+          - NEW
+          - VALIDATION_PENDING
+        uuid:
+          type: string
+          format: uuid
+    SmartUser:
+      type: object
+      properties:
+        email:
+          type: string
+        homeCaUuid:
+          type: string
+          format: uuid
+        oldpassword:
+          type: string
+          writeOnly: true
+        password:
+          type: string
+          writeOnly: true
+        resetDatetime:
+          type: string
+          format: date-time
+          writeOnly: true
+        username:
+          type: string
+        uuid:
+          type: string
+          format: uuid
+    SmartUserPermissionProxy:
+      type: object
+      properties:
+        key:
+          type: string
+        name:
+          type: string
+        resource:
+          type: string
+          format: uuid
+        resourceName:
+          type: string
+        type:
+          type: string
+          enum:
+          - ACTION
+          - ROLE
+    StyleConfiguration:
+      type: object
+      properties:
+        active:
+          type: boolean
+        backgroundImage:
+          type: array
+          items:
+            type: string
+            format: byte
+        bodyStyle:
+          type: string
+        footerText:
+          type: string
+        headerImage:
+          type: array
+          items:
+            type: string
+            format: byte
+        headerStyle:
+          type: string
+        loginImage:
+          type: array
+          items:
+            type: string
+            format: byte
+        serverName:
+          type: string
+        styleId:
+          type: string
+        uuid:
+          type: string
+          format: uuid
+    SurveyDesignMetadata:
+      type: object
+      properties:
+        configurableModel:
+          type: string
+        id:
+          type: string
+        missionMetadata:
+          type: array
+          items:
+            $ref: '#/components/schemas/MissionAttributeMetadata'
+        names:
+          type: array
+          items:
+            $ref: '#/components/schemas/Name'
+        samplingUnits:
+          type: array
+          items:
+            $ref: '#/components/schemas/ListOption'
+        signatureTypes:
+          type: array
+          items:
+            $ref: '#/components/schemas/ListOption'
+        surveys:
+          type: array
+          items:
+            $ref: '#/components/schemas/ListOption'
+        trackMetadata:
+          type: array
+          items:
+            $ref: '#/components/schemas/MissionAttributeMetadata'
+        waypointMetadata:
+          type: array
+          items:
+            $ref: '#/components/schemas/MissionAttributeMetadata'
+    Translation:
+      type: object
+      properties:
+        language_code:
+          type: string
+        value:
+          type: string
+    UploadStatus:
+      type: object
+      properties:
+        current_size:
+          type: integer
+          format: int64
+        expected_size:
+          type: integer
+          format: int64
+        message:
+          type: string
+        status:
+          type: string
+          enum:
+          - UPLOADING
+          - PROCESSING
+          - COMPLETE
+          - ERROR
+        uuid:
+          type: string
+          format: uuid
+    UserQuicklink:
+      type: object
+      properties:
+        labelOverride:
+          type: string
+        order:
+          type: integer
+          format: int32
+        quicklink:
+          $ref: '#/components/schemas/Quicklink'
+        userUuid:
+          type: string
+          format: uuid
+        uuid:
+          type: string
+          format: uuid
+    UsersDefaultDashboard:
+      type: object
+      properties:
+        customDate1From:
+          type: string
+        customDate1To:
+          type: string
+        customDate2From:
+          type: string
+        customDate2To:
+          type: string
+        dashboardUuid:
+          type: string
+          format: uuid
+        dateRange1:
+          type: integer
+          format: int32
+        dateRange2:
+          type: integer
+          format: int32
+        userUuid:
+          type: string
+          format: uuid
+  securitySchemes:
+    apikeyquery:
+      type: apiKey
+      name: token
+      in: query
