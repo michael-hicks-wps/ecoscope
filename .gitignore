@@ -141,6 +141,9 @@ dmypy.json
 .terraform/
 *.tfstate
 
+# Local projects (testbed workflows, not contributed back)
+projects/
+
 # Project specific
 inputs/
 outputs/
